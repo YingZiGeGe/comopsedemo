@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Compose</string>
+
+
+    <string name="live_multi_voice_apply_list_empty">暂无申请, 主动邀请更快畅聊哦~</string>
+    <string name="live_multi_voice_invite_list_empty">房间内暂无可邀观众\n 请稍后重试哦～</string>
+</resources>
