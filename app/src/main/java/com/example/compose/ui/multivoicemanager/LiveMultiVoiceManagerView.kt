@@ -187,7 +187,7 @@ private fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::
 }
 
 // 申请列表
-// @Preview(name = "ApplyMicList")
+@Preview(name = "ApplyList")
 @Composable
 private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
     if (data.applyList?.isNotEmpty() == true) {
@@ -336,7 +336,7 @@ private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::cl
 }
 
 // 申请列表空视图
-@Preview(name = "ApplyListEmpty")
+// @Preview(name = "ApplyListEmpty")
 @Composable
 private fun LiveMultiVoiceApplyListEmpty() {
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -396,6 +396,7 @@ private fun LiveMultiVoiceApplyListEmpty() {
 }
 
 // 邀请列表
+// todo Simon.Debug 正在查看为什么 invite list 无法预览, 但 apply list 可以预览
 @Preview(name = "InviteList")
 @Composable
 private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
