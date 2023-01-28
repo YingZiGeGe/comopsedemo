@@ -15,8 +15,18 @@ import com.example.compose.R
 data class LiveMultiVoiceManagerUIState(
     val titles: MutableList<String> = mutableListOf("申请消息", "邀请列表"),
     val applyList: List<LiveMultiVoiceApplyItem>? = null,
-    val inviteList: List<LiveMultiVoiceInviteItem>? = null
-)
+    val inviteList: List<LiveMultiVoiceInviteItem>? = null,
+    var currentPage: Int = PAGE_APPLY_LIST,
+    val firstLoad: (Int) -> Unit = {}
+) {
+    companion object {
+        // 申请列表
+        const val PAGE_APPLY_LIST = 0
+
+        // 邀请列表
+        const val PAGE_INVITE_LIST = 1
+    }
+}
 
 // 申请列表数据
 data class LiveMultiVoiceApplyItem(
@@ -54,7 +64,7 @@ class LiveMultiVoiceProvider : PreviewParameterProvider<LiveMultiVoiceManagerUIS
     }
     private val inviteList = ArrayList<LiveMultiVoiceInviteItem>().apply {
         repeat(100) {
-            LiveMultiVoiceInviteItem().apply {
+            add(LiveMultiVoiceInviteItem().apply {
                 uid = it.toLong()
                 header = R.drawable.ic_comic_header
                 name = "Simon $it"
@@ -64,7 +74,7 @@ class LiveMultiVoiceProvider : PreviewParameterProvider<LiveMultiVoiceManagerUIS
                 } else {
                     LiveMultiVoiceInviteItem.STATE_NONE
                 }
-            }
+            })
         }
     }
 

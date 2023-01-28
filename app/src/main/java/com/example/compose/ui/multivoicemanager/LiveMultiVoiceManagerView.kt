@@ -1,6 +1,8 @@
 package com.example.compose.ui.multivoicemanager
 
+import android.content.Context
 import android.util.Log
+import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -44,136 +47,147 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "MultiVoiceManager"
 
-// @Preview(name = "LiveMultiVoiceManagerView")
+// todo Simon.Debug 为圆角, padding, margin 等定义常量
+private val HEIGHT_TAB_LAYOUT = 50.dp
+
+@ExperimentalPagerApi
+fun getLiveMultiVoiceManagerView(
+    context: Context,
+    state: State<LiveMultiVoiceManagerUIState>
+): View =
+    ComposeView(context).apply {
+        setContent {
+            LiveMultiVoiceManagerView(data = state.value)
+        }
+    }
+
+@Preview(name = "LiveMultiVoiceManagerView")
 @ExperimentalPagerApi
 @Composable
-private fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
+fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
     val titles = remember {
         data.titles
     }
     val pageState = rememberPagerState(initialPage = 0)
     val scope = rememberCoroutineScope()
 
-    Column(
+    ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 color = Color(0xFF1F2022),
                 shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
             )
-        // .clip(shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp))
     ) {
+        // 定义 tabRow 和 设置图标 id
+        val (tabLayout, icSetting, viewPager) = createRefs()
 
-        ConstraintLayout(
+        // 申请列表, 邀请列表
+        ScrollableTabRow(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        ) {
-            // 定义 tabRow 和 设置图标 id
-            val (tabRow, icSetting) = createRefs()
-
-            // 申请列表, 邀请列表
-            ScrollableTabRow(
-                modifier = Modifier
-                    .constrainAs(tabRow) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .wrapContentWidth()
-                    .fillMaxHeight(),
-                // ScrollableTabRow 默认带有 backgroundColor, 无法使用 modifier background 覆盖
-                backgroundColor = Color.Transparent,
-                selectedTabIndex = pageState.currentPage,
-                // 控制 TabRow 左右 padding
-                edgePadding = 15.dp,
-                indicator = { positions ->
-                    // 设置滑动条的属性, 默认是白色的
-                    TabRowDefaults.Indicator(
-                        modifier = Modifier
-                            .tabIndicatorOffset(positions[pageState.currentPage])
-                            .height(3.dp)
-                            .padding(start = 30.dp, end = 30.dp)
-                            .clip(shape = RoundedCornerShape(6.dp)),
-                        color = Color(0xFFFF6699)
-                    )
-                },
-                divider = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(3.dp)
-                    ) {}
+                .constrainAs(tabLayout) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
                 }
-            ) {
-                titles.forEachIndexed { index, title ->
-                    Tab(
-                        selected = index == pageState.currentPage,
-                        onClick = {
-                            scope.launch {
-                                Log.d(TAG, "tab click scrollToPage = $index")
-                                pageState.scrollToPage(index)
-                            }
-                        },
-                        // 如果已选中, 再次点击不做响应
-                        enabled = index != pageState.currentPage
-                    ) {
-                        // 为了让 indicator 和 title 有间距, 这里设置 box 的 height 即可达到效果
-                        Box(
-                            modifier = Modifier.height(40.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            val color =
-                                if (index == pageState.currentPage) Color.White else Color(
-                                    0xCCFFFFFF
-                                )
-                            Text(
-                                // modifier = Modifier.height(30.dp),
-                                text = title,
-                                color = color,
-                                fontSize = 16.sp
-                            )
-                        }
-                    }
-                }
-            }
-
-            // 设置按钮
-            Box(
-                modifier = Modifier
-                    .constrainAs(icSetting) {
-                        top.linkTo(tabRow.top)
-                        bottom.linkTo(tabRow.bottom)
-                        end.linkTo(parent.end, margin = 10.dp)
-                    }
-                    // .padding(end = 10.dp)
-                    .wrapContentWidth()
-                    .fillMaxHeight(),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    modifier = Modifier.size(20.dp),
-                    painter = painterResource(id = R.drawable.ic_multi_voice_setting),
-                    contentDescription = null,
-                    // colorFilter = ColorFilter.tint(color = Color.Red)
+                .wrapContentWidth()
+                .height(HEIGHT_TAB_LAYOUT),
+            // ScrollableTabRow 默认带有 backgroundColor, 无法使用 modifier background 覆盖
+            backgroundColor = Color.Transparent,
+            selectedTabIndex = pageState.currentPage,
+            // 控制 TabRow 左右 padding
+            edgePadding = 15.dp,
+            indicator = { positions ->
+                // 设置滑动条的属性, 默认是白色的
+                TabRowDefaults.Indicator(
+                    modifier = Modifier
+                        .tabIndicatorOffset(positions[pageState.currentPage])
+                        .height(3.dp)
+                        .padding(start = 30.dp, end = 30.dp)
+                        .clip(shape = RoundedCornerShape(6.dp)),
+                    color = Color(0xFFFF6699)
                 )
+            },
+            divider = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                ) {}
+            }
+        ) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    selected = index == pageState.currentPage,
+                    onClick = {
+                        scope.launch {
+                            Log.d(TAG, "tab click scrollToPage = $index")
+                            pageState.scrollToPage(index)
+                        }
+                    },
+                    // 如果已选中, 再次点击不做响应
+                    enabled = index != pageState.currentPage
+                ) {
+                    // 为了让 indicator 和 title 有间距, 这里设置 box 的 height 即可达到效果
+                    Box(
+                        modifier = Modifier.height(40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val color =
+                            if (index == pageState.currentPage) Color.White else Color(
+                                0xCCFFFFFF
+                            )
+                        Text(
+                            // modifier = Modifier.height(30.dp),
+                            text = title,
+                            color = color,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
             }
         }
 
+        // 设置按钮
+        Box(
+            modifier = Modifier
+                .constrainAs(icSetting) {
+                    top.linkTo(tabLayout.top)
+                    bottom.linkTo(tabLayout.bottom)
+                    end.linkTo(parent.end, margin = 10.dp)
+                }
+                // .padding(end = 10.dp)
+                .wrapContentWidth()
+                .fillMaxHeight(),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                modifier = Modifier.size(20.dp),
+                painter = painterResource(id = R.drawable.ic_multi_voice_setting),
+                contentDescription = null,
+                // colorFilter = ColorFilter.tint(color = Color.Red)
+            )
+        }
+
+        // ViewPager 申请列表邀请列表
         HorizontalPager(
             count = titles.size,
             state = pageState,
             modifier = Modifier
+                .constrainAs(viewPager) {
+                    linkTo(
+                        top = tabLayout.bottom,
+                        bottom = parent.bottom,
+                        start = parent.start,
+                        end = parent.end,
+                        verticalBias = 0F
+                    )
+                }
                 .fillMaxSize()
         ) { page ->
             // page = 0: 申请列表, page = 1: 邀请列表
             when (page) {
                 0 -> {
-                    // todo Simon.Debug 首次加载两个列表时, 进行请求
-                    LaunchedEffect(key1 = "test") {
-
-                    }
                     // todo Simon.Debug 可能需要取消?
                     // DisposableEffect(key1 = "test")
                     LiveMultiVoiceApplyList(data)
@@ -182,12 +196,21 @@ private fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::
                     LiveMultiVoiceInviteList(data)
                 }
             }
+
+            // 首次加载时, 进行请求
+            // 如果这个 LaunchedEffect 离开了 Composition, 它启动的协程会被取消
+            LaunchedEffect(key1 = "FirstLoadViewPager") {
+                scope.launch {
+                    pageState.scrollToPage(data.currentPage)
+                    data.firstLoad.invoke(data.currentPage)
+                }
+            }
         }
     }
 }
 
 // 申请列表
-@Preview(name = "ApplyList")
+// @Preview(name = "ApplyList")
 @Composable
 private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
     if (data.applyList?.isNotEmpty() == true) {
@@ -396,8 +419,7 @@ private fun LiveMultiVoiceApplyListEmpty() {
 }
 
 // 邀请列表
-// todo Simon.Debug 正在查看为什么 invite list 无法预览, 但 apply list 可以预览
-@Preview(name = "InviteList")
+// @Preview(name = "InviteList")
 @Composable
 private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
     Column(
@@ -426,9 +448,11 @@ private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::c
                     if (index == data.inviteList.size - 1) {
                         LiveMultiVoiceLastItemView()
                     } else {
-                        ConstraintLayout(modifier = Modifier
-                            .fillMaxWidth()
-                            .height(60.dp)) {
+                        ConstraintLayout(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                        ) {
                             val (header, name, interactionValue, btnInvite) = createRefs()
 
                             // todo Simon.Debug 需要改为网络加载
@@ -444,7 +468,11 @@ private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::c
                                 painter = painterResource(id = R.drawable.ic_comic_header),
                                 contentDescription = null)
 
-                            createVerticalChain(name, interactionValue, chainStyle = ChainStyle.Packed)
+                            createVerticalChain(
+                                name,
+                                interactionValue,
+                                chainStyle = ChainStyle.Packed
+                            )
                             // 名字
                             Text(
                                 modifier = Modifier
@@ -478,7 +506,7 @@ private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::c
                                 if (item.inviteState == LiveMultiVoiceInviteItem.STATE_NONE) Color(
                                     0xFFFF6699
                                 ) else Color(0x66FF6699)
-                            Text(modifier = Modifier
+                            Box(modifier = Modifier
                                 .constrainAs(btnInvite) {
                                     top.linkTo(header.top)
                                     bottom.linkTo(header.bottom)
@@ -496,8 +524,14 @@ private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::c
                                     ),
                                     shape = RoundedCornerShape(4.dp)
                                 ),
-                            text = textInvite,
-                            color = colorInvite)
+                                contentAlignment = Alignment.Center) {
+                                Text(
+                                    modifier = Modifier.wrapContentSize(),
+                                    text = textInvite,
+                                    color = colorInvite,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
                 }
@@ -536,11 +570,11 @@ private fun LiveMultiVoiceInviteListEmpty() {
             modifier = Modifier
                 .padding(top = 4.dp)
                 .constrainAs(emptyText) {
-                top.linkTo(emptyView.bottom)
-                bottom.linkTo(btnInvite.top)
-                start.linkTo(emptyView.start)
-                end.linkTo(emptyView.end)
-            },
+                    top.linkTo(emptyView.bottom)
+                    bottom.linkTo(btnInvite.top)
+                    start.linkTo(emptyView.start)
+                    end.linkTo(emptyView.end)
+                },
             text = stringResource(id = R.string.live_multi_voice_invite_list_empty),
             color = Color(0xFF6F6F6F),
             fontSize = 14.sp,
