@@ -30,6 +30,9 @@
         <activity
             android:name="com.example.compose.XmlActivity"
             android:exported="false" />
+        <activity
+            android:name="com.example.compose.ui.multivoicemanager.LiveMulVoiceManagerActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
