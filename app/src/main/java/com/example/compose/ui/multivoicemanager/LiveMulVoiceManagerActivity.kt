@@ -19,9 +19,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import com.example.compose.BaseActivity
+import com.example.compose.R
 import com.example.compose.ui.theme.ComposeTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -34,12 +37,41 @@ import kotlinx.coroutines.launch
  */
 class LiveMulVoiceManagerActivity: BaseActivity() {
     private var managerUIState = LiveMultiVoiceManagerUIState(
+        applyList = ArrayList<LiveMultiVoiceApplyItem>().apply {
+            repeat(50) {
+                add(LiveMultiVoiceApplyItem().apply {
+                    uid = it.toLong()
+                    header = R.drawable.ic_comic_header
+                    name = "Simon $it"
+                    time = "01-12 11:57"
+                })
+            }
+        },
+        inviteList = ArrayList<LiveMultiVoiceInviteItem>().apply {
+            repeat(50) {
+                add(LiveMultiVoiceInviteItem().apply {
+                    uid = it.toLong()
+                    header = R.drawable.ic_comic_header
+                    name = "Simon $it"
+                    interactionValue = 7070
+                    inviteState = if (it == 1) {
+                        LiveMultiVoiceInviteItem.STATE_INVITED
+                    } else {
+                        LiveMultiVoiceInviteItem.STATE_NONE
+                    }
+                })
+            }
+        },
+        currentPage = LiveMultiVoiceManagerUIState.PAGE_APPLY_LIST,
         firstLoad = { currentPage ->
             Log.d(TAG, "Simon.Debug currentPage = $currentPage")
             when (currentPage) {
                 // todo Simon.Debug 准备开始写初始化加载逻辑
                 LiveMultiVoiceManagerUIState.PAGE_APPLY_LIST -> {
-
+                    lifecycleScope.launch {
+                        // 模拟网络加载
+                        delay(200)
+                    }
                 }
                 LiveMultiVoiceManagerUIState.PAGE_INVITE_LIST -> {
 
@@ -95,7 +127,7 @@ class LiveMulVoiceManagerActivity: BaseActivity() {
                         // todo Simon.Debug 怎样固定高度, 不让可滑动高度...目前高度可滑动两次..才能 dismiss
                         .height(LocalConfiguration.current.screenHeightDp.dp * 0.66F)
                 ) {
-                    LiveMultiVoiceManagerView(LiveMultiVoiceManagerUIState())
+                    LiveMultiVoiceManagerView(managerUIState)
                 }
             },
         modifier = Modifier,

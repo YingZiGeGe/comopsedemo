@@ -76,15 +76,15 @@
     <!-- 红点 -->
     <ImageView
         android:id="@+id/red_dot"
-        android:layout_width="6dp"
-        android:layout_height="6dp"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
         android:contentDescription="@null"
         android:src="@drawable/ic_red_dot_with_border"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="@id/icon"
         app:layout_constraintEnd_toEndOf="@id/icon"
         app:layout_constraintCircle="@id/icon"
-        app:layout_constraintCircleRadius="24dp"
+        app:layout_constraintCircleRadius="25dp"
         app:layout_constraintCircleAngle="45"
         tools:visibility="visible" />
 

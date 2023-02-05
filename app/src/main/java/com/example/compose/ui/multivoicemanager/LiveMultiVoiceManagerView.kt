@@ -214,145 +214,153 @@ fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::class) d
 @Composable
 private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
     if (data.applyList?.isNotEmpty() == true) {
-        // 数据不为空时, 展示底部最后一条~
-        (data.applyList as? ArrayList)?.add(LiveMultiVoiceApplyItem())
         val listState = rememberLazyListState()
 
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
+            // modifier = Modifier
+            //     .fillMaxSize(),
             state = listState
         ) {
             // todo Simon.Debug 数据进来前需要先过滤下重复数据, 不然 compose 会 crash
-            // todo Simon.Debug 因为 item 标识必须唯一, 不然 compose 会 crash? 待确认
+            // todo Simon.Debug 因为 item 标识必须唯一, 不然 compose 会 crash
             try {
                 itemsIndexed(
                     items = data.applyList,
                     // 默认情况下列表项的状态是和位置绑定的，倘若数据集发生更改，
                     // 那么状态就会丢失，从而可能出现数据混乱的情况。
                     // 所以这里需要使用Key来进行状态保存
-                    key = { _, item ->
-                        item.hashCode()
-                    }) { index, item ->
 
-                    if (index == data.applyList.size - 1) {
-                        // 最后一条数据
-                        LiveMultiVoiceLastItemView()
-                    } else {
-                        ConstraintLayout(
+                    // key = { _, item ->
+                    //     val unique = item.uid ?: 0L
+                    //     Log.d("Simon.Debug", "manager view invite list unique = $unique, item = ${item.name}")
+                    //     unique
+                    // }
+                ) { index, item ->
+                    Log.d(
+                        "Simon.Debug",
+                        "manager view index = $index, title = ${item.name}, size = ${data.applyList.size}"
+                    )
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                    ) {
+                        val (header, name, time, refuse, accept) = createRefs()
+
+                        // 头像
+                        // todo Simon.Debug 需要改为网络加载
+                        Image(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp)
-                        ) {
-                            val (header, name, time, refuse, accept) = createRefs()
+                                .constrainAs(header) {
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                    start.linkTo(parent.start, margin = 15.dp)
+                                }
+                                .size(35.dp)
+                                .clip(CircleShape),
+                            painter = painterResource(id = R.drawable.ic_comic_header),
+                            contentDescription = null)
 
-                            // 头像
-                            // todo Simon.Debug 需要改为网络加载
-                            Image(
-                                modifier = Modifier
-                                    .constrainAs(header) {
-                                        top.linkTo(parent.top)
-                                        bottom.linkTo(parent.bottom)
-                                        start.linkTo(parent.start, margin = 15.dp)
-                                    }
-                                    .size(35.dp)
-                                    .clip(CircleShape),
-                                painter = painterResource(id = R.drawable.ic_comic_header),
-                                contentDescription = null)
+                        // 创建 name 和 time 的 垂直 chain
+                        createVerticalChain(name, time, chainStyle = ChainStyle.Packed)
+                        // 名字
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(name) {
+                                    top.linkTo(header.top)
+                                    start.linkTo(header.end, margin = 8.dp)
+                                    bottom.linkTo(time.top)
+                                },
+                            text = item.name ?: "",
+                            fontSize = 13.sp,
+                            color = Color.White
+                        )
 
-                            // 创建 name 和 time 的 垂直 chain
-                            createVerticalChain(name, time, chainStyle = ChainStyle.Packed)
-                            // 名字
-                            Text(
-                                modifier = Modifier
-                                    .constrainAs(name) {
-                                        top.linkTo(header.top)
-                                        start.linkTo(header.end, margin = 8.dp)
-                                        bottom.linkTo(time.top)
-                                    },
-                                text = item.name ?: "",
-                                fontSize = 13.sp,
-                                color = Color.White
-                            )
+                        // 申请时间
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(time) {
+                                    top.linkTo(name.bottom)
+                                    bottom.linkTo(header.bottom)
+                                    start.linkTo(name.start)
+                                },
+                            text = item.time ?: "",
+                            fontSize = 10.sp,
+                            color = Color(0xFFC9CCD0)
+                        )
 
-                            // 申请时间
-                            Text(
-                                modifier = Modifier
-                                    .constrainAs(time) {
-                                        top.linkTo(name.bottom)
-                                        bottom.linkTo(header.bottom)
-                                        start.linkTo(name.start)
-                                    },
-                                text = item.time ?: "",
-                                fontSize = 10.sp,
-                                color = Color(0xFFC9CCD0)
-                            )
+                        // 接收按钮
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(accept) {
+                                    top.linkTo(header.top)
+                                    bottom.linkTo(header.bottom)
+                                    end.linkTo(parent.end, margin = 15.dp)
+                                }
+                                .background(
+                                    color = Color(0xFFFF6699),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .padding(
+                                    start = 15.dp,
+                                    end = 15.dp,
+                                    top = 3.dp,
+                                    bottom = 3.dp
+                                ),
+                            text = "接收",
+                            color = Color.White,
+                            fontSize = 13.sp)
 
-                            // 接收按钮
-                            Text(
-                                modifier = Modifier
-                                    .constrainAs(accept) {
-                                        top.linkTo(header.top)
-                                        bottom.linkTo(header.bottom)
-                                        end.linkTo(parent.end, margin = 15.dp)
-                                    }
-                                    .background(
-                                        color = Color(0xFFFF6699),
-                                        shape = RoundedCornerShape(4.dp)
+                        // 拒绝按钮
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(refuse) {
+                                    // 这里直接使用 linkTo 就可以使用 bias 啦~
+                                    linkTo(
+                                        top = header.top,
+                                        bottom = header.bottom,
+                                        start = name.end,
+                                        end = accept.start,
+                                        endMargin = 8.dp,
+                                        horizontalBias = 1F
                                     )
-                                    .padding(
-                                        start = 15.dp,
-                                        end = 15.dp,
-                                        top = 3.dp,
-                                        bottom = 3.dp
-                                    ),
-                                text = "接收",
-                                color = Color.White,
-                                fontSize = 13.sp)
-
-                            // 拒绝按钮
-                            Text(
-                                modifier = Modifier
-                                    .constrainAs(refuse) {
-                                        // 这里直接使用 linkTo 就可以使用 bias 啦~
-                                        linkTo(
-                                            top = header.top,
-                                            bottom = header.bottom,
-                                            start = name.end,
-                                            end = accept.start,
-                                            endMargin = 8.dp,
-                                            horizontalBias = 1F
+                                }
+                                // 不填充使用 border!
+                                .border(
+                                    width = 1.dp,
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color(0xFFFF6699),
+                                            Color(0xFFFF6699)
                                         )
-                                    }
-                                    // 不填充使用 border!
-                                    .border(
-                                        width = 1.dp,
-                                        brush = Brush.verticalGradient(
-                                            colors = listOf(
-                                                Color(0xFFFF6699),
-                                                Color(0xFFFF6699)
-                                            )
-                                        ),
-                                        shape = RoundedCornerShape(4.dp)
-                                    )
-                                    .padding(
-                                        start = 15.dp,
-                                        end = 15.dp,
-                                        top = 3.dp,
-                                        bottom = 3.dp
                                     ),
-                                text = "拒绝",
-                                color = Color(0xFFFF6699),
-                                fontSize = 13.sp
-                            )
-                        }
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .padding(
+                                    start = 15.dp,
+                                    end = 15.dp,
+                                    top = 3.dp,
+                                    bottom = 3.dp
+                                ),
+                            text = "拒绝",
+                            color = Color(0xFFFF6699),
+                            fontSize = 13.sp
+                        )
                     }
+                }
+
+                item {
+                    // 最后一条数据
+                    LiveMultiVoiceLastItemView()
+                }
+
+                item {
+                    BottomPlaceHolder()
                 }
             } catch (e: Exception) {
                 Log.e("Simon.Debug", "Simon.Debug apply mic list error = $e")
             }
         }
-
     } else {
         LiveMultiVoiceApplyListEmpty()
     }
@@ -427,8 +435,6 @@ private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::c
             .fillMaxSize()
     ) {
         if (data.inviteList?.isNotEmpty() == true) {
-            (data.inviteList as? ArrayList)?.add(LiveMultiVoiceInviteItem())
-
             Text(
                 modifier = Modifier
                     .padding(start = 15.dp),
@@ -442,98 +448,103 @@ private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::c
                 modifier = Modifier.fillMaxSize()
             ) {
                 itemsIndexed(items = data.inviteList,
-                    key = { _, item ->
-                        item.hashCode()
-                    }) { index, item ->
-                    if (index == data.inviteList.size - 1) {
-                        LiveMultiVoiceLastItemView()
-                    } else {
-                        ConstraintLayout(
+                    // key = { _, item ->
+                    //     item.hashCode()
+                    // }
+                ) { index, item ->
+                    ConstraintLayout(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                    ) {
+                        val (header, name, interactionValue, btnInvite) = createRefs()
+
+                        // todo Simon.Debug 需要改为网络加载
+                        Image(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp)
-                        ) {
-                            val (header, name, interactionValue, btnInvite) = createRefs()
-
-                            // todo Simon.Debug 需要改为网络加载
-                            Image(
-                                modifier = Modifier
-                                    .constrainAs(header) {
-                                        top.linkTo(parent.top)
-                                        bottom.linkTo(parent.bottom)
-                                        start.linkTo(parent.start, margin = 15.dp)
-                                    }
-                                    .size(35.dp)
-                                    .clip(CircleShape),
-                                painter = painterResource(id = R.drawable.ic_comic_header),
-                                contentDescription = null)
-
-                            createVerticalChain(
-                                name,
-                                interactionValue,
-                                chainStyle = ChainStyle.Packed
-                            )
-                            // 名字
-                            Text(
-                                modifier = Modifier
-                                    .constrainAs(name) {
-                                        top.linkTo(header.top)
-                                        bottom.linkTo(interactionValue.top)
-                                        start.linkTo(header.end, margin = 8.dp)
-                                    },
-                                text = item.name ?: "",
-                                fontSize = 13.sp,
-                                color = Color.White
-                            )
-
-                            // 互动值
-                            Text(
-                                modifier = Modifier
-                                    .constrainAs(interactionValue) {
-                                        top.linkTo(name.bottom)
-                                        bottom.linkTo(header.bottom)
-                                        start.linkTo(name.start)
-                                    },
-                                text = item.interactionValue?.toString() ?: "",
-                                fontSize = 10.sp,
-                                color = Color(0xFFC9CCD0)
-                            )
-
-                            // 邀请按钮
-                            val textInvite =
-                                if (item.inviteState == LiveMultiVoiceInviteItem.STATE_NONE) "邀请连麦" else "已邀请"
-                            val colorInvite =
-                                if (item.inviteState == LiveMultiVoiceInviteItem.STATE_NONE) Color(
-                                    0xFFFF6699
-                                ) else Color(0x66FF6699)
-                            Box(modifier = Modifier
-                                .constrainAs(btnInvite) {
-                                    top.linkTo(header.top)
-                                    bottom.linkTo(header.bottom)
-                                    end.linkTo(parent.end, margin = 15.dp)
+                                .constrainAs(header) {
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                    start.linkTo(parent.start, margin = 15.dp)
                                 }
-                                .width(66.dp)
-                                .height(24.dp)
-                                .border(
-                                    width = 1.dp,
-                                    brush = Brush.verticalGradient(
-                                        colors = listOf(
-                                            colorInvite,
-                                            colorInvite
-                                        )
-                                    ),
-                                    shape = RoundedCornerShape(4.dp)
-                                ),
-                                contentAlignment = Alignment.Center) {
-                                Text(
-                                    modifier = Modifier.wrapContentSize(),
-                                    text = textInvite,
-                                    color = colorInvite,
-                                    textAlign = TextAlign.Center
-                                )
+                                .size(35.dp)
+                                .clip(CircleShape),
+                            painter = painterResource(id = R.drawable.ic_comic_header),
+                            contentDescription = null)
+
+                        createVerticalChain(
+                            name,
+                            interactionValue,
+                            chainStyle = ChainStyle.Packed
+                        )
+                        // 名字
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(name) {
+                                    top.linkTo(header.top)
+                                    bottom.linkTo(interactionValue.top)
+                                    start.linkTo(header.end, margin = 8.dp)
+                                },
+                            text = item.name ?: "",
+                            fontSize = 13.sp,
+                            color = Color.White
+                        )
+
+                        // 互动值
+                        Text(
+                            modifier = Modifier
+                                .constrainAs(interactionValue) {
+                                    top.linkTo(name.bottom)
+                                    bottom.linkTo(header.bottom)
+                                    start.linkTo(name.start)
+                                },
+                            text = item.interactionValue?.toString() ?: "",
+                            fontSize = 10.sp,
+                            color = Color(0xFFC9CCD0)
+                        )
+
+                        // 邀请按钮
+                        val textInvite =
+                            if (item.inviteState == LiveMultiVoiceInviteItem.STATE_NONE) "邀请连麦" else "已邀请"
+                        val colorInvite =
+                            if (item.inviteState == LiveMultiVoiceInviteItem.STATE_NONE) Color(
+                                0xFFFF6699
+                            ) else Color(0x66FF6699)
+                        Box(modifier = Modifier
+                            .constrainAs(btnInvite) {
+                                top.linkTo(header.top)
+                                bottom.linkTo(header.bottom)
+                                end.linkTo(parent.end, margin = 15.dp)
                             }
+                            .width(66.dp)
+                            .height(24.dp)
+                            .border(
+                                width = 1.dp,
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        colorInvite,
+                                        colorInvite
+                                    )
+                                ),
+                                shape = RoundedCornerShape(4.dp)
+                            ),
+                            contentAlignment = Alignment.Center) {
+                            Text(
+                                modifier = Modifier.wrapContentSize(),
+                                text = textInvite,
+                                color = colorInvite,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
+                }
+
+                item {
+                    LiveMultiVoiceLastItemView()
+                }
+
+                item {
+                    BottomPlaceHolder()
                 }
             }
         } else {
@@ -611,4 +622,12 @@ private fun LiveMultiVoiceLastItemView() {
             color = Color(0xFF757A81)
         )
     }
+}
+
+@Composable
+private fun BottomPlaceHolder() {
+    // todo Simon.Debug 底部高度占位, 还不清楚为什么 dialog 中会导致底部部分 item 无法展示原因
+    Text(
+        modifier = Modifier.height(60.dp),
+        text = "")
 }

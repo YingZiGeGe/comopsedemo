@@ -14,14 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.compose.ui.multivoicemanager.LiveMulVoiceManagerActivity
 import com.example.compose.ui.theme.ComposeTheme
-import kotlinx.coroutines.withContext
 
 class MainActivity : BaseActivity() {
     private val items = listOf<Class<*>>(
@@ -67,6 +65,53 @@ class MainActivity : BaseActivity() {
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview(name = "testLazyColumn")
+@Composable
+private fun TestLazyColumn() {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                text = "HEADER"
+            )
+        }
+
+        // items(count = 20) {
+        //     Text(
+        //         modifier = Modifier
+        //             .fillMaxWidth()
+        //             .height(60.dp),
+        //         text = "POS = $it"
+        //     )
+        // }
+
+        val list = mutableListOf<String>().apply {
+            repeat(20) {
+                add(it.toString())
+            }
+        }
+        itemsIndexed(items = list) { index, item ->
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                text = "POS = $item"
+            )
+        }
+
+        item {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                text = "FOOTER"
+            )
         }
     }
 }
