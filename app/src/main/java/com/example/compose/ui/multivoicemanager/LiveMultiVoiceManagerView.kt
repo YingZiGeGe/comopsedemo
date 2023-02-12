@@ -6,6 +6,7 @@ import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -188,12 +189,12 @@ fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::class) d
             // page = 0: 申请列表, page = 1: 邀请列表
             when (page) {
                 0 -> {
-                    // todo Simon.Debug 可能需要取消?
+                    // todo Simon.Debug 正在网络请求时, 关播页面时, 需要取消请求?
                     // DisposableEffect(key1 = "test")
-                    LiveMultiVoiceApplyList(data)
+                    LiveMultiVoiceApplyList(data.applyList)
                 }
                 1 -> {
-                    LiveMultiVoiceInviteList(data)
+                    LiveMultiVoiceInviteList(data.inviteList)
                 }
             }
 
@@ -212,9 +213,14 @@ fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::class) d
 // 申请列表
 // @Preview(name = "ApplyList")
 @Composable
-private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
-    if (data.applyList?.isNotEmpty() == true) {
+// private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
+private fun LiveMultiVoiceApplyList(list: List<LiveMultiVoiceApplyItem>?) {
+    if (list?.isNotEmpty() == true) {
         val listState = rememberLazyListState()
+        val items = remember {
+            mutableStateOf(list)
+        }
+        val scope = rememberCoroutineScope()
 
         LazyColumn(
             // modifier = Modifier
@@ -225,20 +231,20 @@ private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::cl
             // todo Simon.Debug 因为 item 标识必须唯一, 不然 compose 会 crash
             try {
                 itemsIndexed(
-                    items = data.applyList,
+                    items = items.value,
                     // 默认情况下列表项的状态是和位置绑定的，倘若数据集发生更改，
                     // 那么状态就会丢失，从而可能出现数据混乱的情况。
                     // 所以这里需要使用Key来进行状态保存
 
                     // key = { _, item ->
                     //     val unique = item.uid ?: 0L
-                    //     Log.d("Simon.Debug", "manager view invite list unique = $unique, item = ${item.name}")
+                    //     Log.d("ManagerView", "manager view invite list unique = $unique, item = ${item.name}")
                     //     unique
                     // }
                 ) { index, item ->
                     Log.d(
                         "Simon.Debug",
-                        "manager view index = $index, title = ${item.name}, size = ${data.applyList.size}"
+                        "manager view index = $index, title = ${item.name}, size = ${items.value.size}"
                     )
                     ConstraintLayout(
                         modifier = Modifier
@@ -289,7 +295,7 @@ private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::cl
                             color = Color(0xFFC9CCD0)
                         )
 
-                        // 接收按钮
+                        // 接受按钮
                         Text(
                             modifier = Modifier
                                 .constrainAs(accept) {
@@ -306,8 +312,18 @@ private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::cl
                                     end = 15.dp,
                                     top = 3.dp,
                                     bottom = 3.dp
-                                ),
-                            text = "接收",
+                                )
+                                .clickable {
+                                    Log.d("ManagerView", "Simon.Debug click accept")
+                                    scope.launch {
+                                        val result = item.acceptEvent.invoke()
+                                        if (result) {
+                                            (items.value as? ArrayList)?.remove(item)
+                                            items.value = items.value
+                                        }
+                                    }
+                                },
+                            text = "接受",
                             color = Color.White,
                             fontSize = 13.sp)
 
@@ -341,7 +357,17 @@ private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::cl
                                     end = 15.dp,
                                     top = 3.dp,
                                     bottom = 3.dp
-                                ),
+                                )
+                                .clickable {
+                                    Log.d("ManagerView", "Simon.Debug click refuse")
+                                    scope.launch {
+                                        val result = item.refuseEvent.invoke()
+                                        if (result) {
+                                            (items.value as? ArrayList)?.remove(item)
+                                            items.value = items.value
+                                        }
+                                    }
+                                },
                             text = "拒绝",
                             color = Color(0xFFFF6699),
                             fontSize = 13.sp
@@ -429,12 +455,17 @@ private fun LiveMultiVoiceApplyListEmpty() {
 // 邀请列表
 // @Preview(name = "InviteList")
 @Composable
-private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
+// private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
+private fun LiveMultiVoiceInviteList(list: List<LiveMultiVoiceInviteItem>?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        if (data.inviteList?.isNotEmpty() == true) {
+        val items = remember {
+            mutableStateOf(list)
+        }
+
+        if (items.value?.isNotEmpty() == true) {
             Text(
                 modifier = Modifier
                     .padding(start = 15.dp),
@@ -447,7 +478,8 @@ private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::c
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                itemsIndexed(items = data.inviteList,
+                val tempValue = items.value ?: return@LazyColumn
+                itemsIndexed(items = tempValue,
                     // key = { _, item ->
                     //     item.hashCode()
                     // }
@@ -527,7 +559,11 @@ private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::c
                                     )
                                 ),
                                 shape = RoundedCornerShape(4.dp)
-                            ),
+                            )
+                            .clickable {
+                                Log.d("ManagerView", "Simon.Debug click invite")
+                                item.inviteEvent.invoke()
+                            },
                             contentAlignment = Alignment.Center) {
                             Text(
                                 modifier = Modifier.wrapContentSize(),

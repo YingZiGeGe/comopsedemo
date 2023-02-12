@@ -5,13 +5,17 @@ package com.example.compose.ui.multivoicemanager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,12 +23,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import com.example.compose.BaseActivity
-import com.example.compose.R
 import com.example.compose.ui.theme.ComposeTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -36,60 +40,26 @@ import kotlinx.coroutines.launch
  *
  */
 class LiveMulVoiceManagerActivity: BaseActivity() {
-    private var managerUIState = LiveMultiVoiceManagerUIState(
-        applyList = ArrayList<LiveMultiVoiceApplyItem>().apply {
-            repeat(50) {
-                add(LiveMultiVoiceApplyItem().apply {
-                    uid = it.toLong()
-                    header = R.drawable.ic_comic_header
-                    name = "Simon $it"
-                    time = "01-12 11:57"
-                })
-            }
-        },
-        inviteList = ArrayList<LiveMultiVoiceInviteItem>().apply {
-            repeat(50) {
-                add(LiveMultiVoiceInviteItem().apply {
-                    uid = it.toLong()
-                    header = R.drawable.ic_comic_header
-                    name = "Simon $it"
-                    interactionValue = 7070
-                    inviteState = if (it == 1) {
-                        LiveMultiVoiceInviteItem.STATE_INVITED
-                    } else {
-                        LiveMultiVoiceInviteItem.STATE_NONE
-                    }
-                })
-            }
-        },
-        currentPage = LiveMultiVoiceManagerUIState.PAGE_APPLY_LIST,
-        firstLoad = { currentPage ->
-            Log.d(TAG, "Simon.Debug currentPage = $currentPage")
-            when (currentPage) {
-                // todo Simon.Debug 准备开始写初始化加载逻辑
-                LiveMultiVoiceManagerUIState.PAGE_APPLY_LIST -> {
-                    lifecycleScope.launch {
-                        // 模拟网络加载
-                        delay(200)
-                    }
-                }
-                LiveMultiVoiceManagerUIState.PAGE_INVITE_LIST -> {
-
-                }
-                else -> {
-                    Log.e(TAG, "Simon.Debug error page = $currentPage")
-                }
-            }
-        }
-    )
+    private lateinit var viewModel: LiveMulVoiceManagerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ManagerMainView()
-            // LiveMultiVoiceManagerView(managerUIState)
         }
+
+        initViewModel()
     }
+
+    private fun initViewModel() {
+        viewModel = ViewModelProvider(this)[LiveMulVoiceManagerViewModel::class.java]
+    }
+
+    // private val list: MutableList<Int> by mutableStateOf(mutableListOf<Int>().apply {
+    //     repeat(100) {
+    //         add(it)
+    //     }
+    // })
 
     @Composable
     private fun ManagerMainView() {
@@ -98,16 +68,58 @@ class LiveMulVoiceManagerActivity: BaseActivity() {
         // 弹起管理员面板按钮
         Box(modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center) {
-            Text(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .clickable {
-                        // 这里的弹框弹出需要通过数据变更进行展示, 不能直接在 clickable 中嵌套 compose view
-                        scope.launch {
-                            if (sheetState.isVisible) sheetState.hide() else sheetState.show()
+
+            Column {
+                Text(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable {
+                            // 这里的弹框弹出需要通过数据变更进行展示, 不能直接在 clickable 中嵌套 compose view
+                            scope.launch {
+                                if (sheetState.isVisible) sheetState.hide() else sheetState.show()
+                            }
+                        },
+                    text = "弹起管理员面板")
+
+                // val text = MutableStateFlow("Hello World")
+                // val text = MutableLiveData("Hello World")
+
+                // todo ManagerView 正在查找为什么数据变更后不刷新, 上下滑动后才刷新...
+                // 原因: https://www.likecs.com/show-308643424.html#sc=3748
+                val list = remember {
+                    mutableStateListOf<Int>()
+                        .apply {
+                            repeat(100) {
+                                add(it)
+                            }
                         }
-                    },
-                text = "弹起管理员面板")
+                }
+                // val list2 = list.().value!!
+                LazyColumn {
+                    items(
+                        items = list
+                    ) { item ->
+                        Text(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .height(60.dp)
+                                .clickable {
+                                    Log.d(
+                                        "TestView",
+                                        "TestView click list size 000 = ${list.size}"
+                                    )
+                                    list.remove(item)
+                                    Log.d(
+                                        "TestView",
+                                        "TestView click list size 001 = ${list.size}"
+                                    )
+                                },
+                            text = "Hello World $item",
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
         }
 
         ManagerDialog(sheetState)
@@ -127,7 +139,7 @@ class LiveMulVoiceManagerActivity: BaseActivity() {
                         // todo Simon.Debug 怎样固定高度, 不让可滑动高度...目前高度可滑动两次..才能 dismiss
                         .height(LocalConfiguration.current.screenHeightDp.dp * 0.66F)
                 ) {
-                    LiveMultiVoiceManagerView(managerUIState)
+                    LiveMultiVoiceManagerView(viewModel.managerUIState.observeAsState().value!!)
                 }
             },
         modifier = Modifier,

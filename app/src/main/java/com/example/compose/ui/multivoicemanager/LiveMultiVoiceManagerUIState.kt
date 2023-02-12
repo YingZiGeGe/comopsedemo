@@ -33,7 +33,9 @@ data class LiveMultiVoiceApplyItem(
     var uid: Long? = null,
     @DrawableRes var header: Int? = null,
     var name: String? = null,
-    var time: String? = null
+    var time: String? = null,
+    var acceptEvent: suspend () -> Boolean = { false },
+    var refuseEvent: suspend () -> Boolean = { false }
 )
 
 // 邀请列表数据
@@ -43,7 +45,8 @@ data class LiveMultiVoiceInviteItem(
     var name: String? = null,
     var interactionValue: Int? = null,
     // 0 未邀请, 1 已邀请
-    var inviteState: Int = STATE_NONE
+    var inviteState: Int = STATE_NONE,
+    var inviteEvent: () -> Unit = {}
 ) {
     companion object {
         const val STATE_NONE = 0

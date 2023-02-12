@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2015-2019 BiliBili Inc.
+  -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="80dp"
+        android:layout_height="84dp">
+
+        <ImageView
+            android:id="@+id/iv_voice_ing"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="4dp"
+            android:layout_marginRight="4dp"/>
+
+        <ImageView
+            android:layout_marginTop="15dp"
+            android:layout_centerHorizontal="true"
+            android:id="@id/avatar"
+            android:layout_width="24dp"
+            android:layout_height="24dp" />
+
+        <TextView
+            android:id="@id/user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/avatar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="9dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginRight="9dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:textColor="@color/black"
+            android:textSize="10sp"
+            tools:text="其他用户名称" />
+
+        <TextView
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="3dp"
+            android:layout_below="@+id/user_name"
+            android:id="@+id/voice_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#999999"
+            android:textSize="8sp"
+            tools:text="13231" />
+    </RelativeLayout>
+</FrameLayout>

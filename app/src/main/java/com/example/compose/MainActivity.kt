@@ -3,6 +3,7 @@ package com.example.compose
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.compose.ui.multivoicemanager.LiveMulVoiceManagerActivity
+import com.example.compose.ui.multivoicemanager.Test
 import com.example.compose.ui.theme.ComposeTheme
 
 class MainActivity : BaseActivity() {
@@ -33,6 +35,24 @@ class MainActivity : BaseActivity() {
                 MainFunctionList(this@MainActivity)
             }
         }
+
+        // testFun(int = 0, true)
+        testFun(int = 0, booleanArrayOf(true))
+        testFun2()
+    }
+
+    private fun testFun(int: Int, vararg test: Any) {
+        Log.d("testFun", "testFun 000 int = $int, test = $test")
+        Log.d("testFun", "testFun 001 int = $int, test = ${test.firstOrNull()}")
+        Log.d("testFun", "testFun 002 int = $int, test = ${(test.firstOrNull() as? Array<*>)?.firstOrNull()}")
+    }
+
+    private fun testFun2() {
+        // val test = Test.IEventCenter().sendEvent(1, booleanArrayOf(true))
+        val test = Test.IEventCenter().sendEvent(1, true)
+        Log.d("testFun1", "testFun1 000 test = $test")
+        Log.d("testFun1", "testFun1 001 test = ${(test as? Array<*>)?.firstOrNull()}")
+        Log.d("testFun1", "testFun1 002 test = ${((test as? Array<*>)?.firstOrNull() as? Array<*>)?.firstOrNull()}")
     }
 
     // @Preview(name = "MainFunctionList")
