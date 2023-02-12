@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -214,12 +215,12 @@ fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::class) d
 // @Preview(name = "ApplyList")
 @Composable
 // private fun LiveMultiVoiceApplyList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
-private fun LiveMultiVoiceApplyList(list: List<LiveMultiVoiceApplyItem>?) {
+private fun LiveMultiVoiceApplyList(list: SnapshotStateList<LiveMultiVoiceApplyItem>?) {
     if (list?.isNotEmpty() == true) {
         val listState = rememberLazyListState()
-        val items = remember {
-            mutableStateOf(list)
-        }
+        // val items = remember {
+        //     mutableStateOf(list)
+        // }
         val scope = rememberCoroutineScope()
 
         LazyColumn(
@@ -231,7 +232,7 @@ private fun LiveMultiVoiceApplyList(list: List<LiveMultiVoiceApplyItem>?) {
             // todo Simon.Debug 因为 item 标识必须唯一, 不然 compose 会 crash
             try {
                 itemsIndexed(
-                    items = items.value,
+                    items = list,
                     // 默认情况下列表项的状态是和位置绑定的，倘若数据集发生更改，
                     // 那么状态就会丢失，从而可能出现数据混乱的情况。
                     // 所以这里需要使用Key来进行状态保存
@@ -242,9 +243,10 @@ private fun LiveMultiVoiceApplyList(list: List<LiveMultiVoiceApplyItem>?) {
                     //     unique
                     // }
                 ) { index, item ->
+
                     Log.d(
                         "Simon.Debug",
-                        "manager view index = $index, title = ${item.name}, size = ${items.value.size}"
+                        "manager view index = $index, title = ${item.name}, size = ${list.size}"
                     )
                     ConstraintLayout(
                         modifier = Modifier
@@ -318,8 +320,7 @@ private fun LiveMultiVoiceApplyList(list: List<LiveMultiVoiceApplyItem>?) {
                                     scope.launch {
                                         val result = item.acceptEvent.invoke()
                                         if (result) {
-                                            (items.value as? ArrayList)?.remove(item)
-                                            items.value = items.value
+                                            list.remove(item)
                                         }
                                     }
                                 },
@@ -363,8 +364,7 @@ private fun LiveMultiVoiceApplyList(list: List<LiveMultiVoiceApplyItem>?) {
                                     scope.launch {
                                         val result = item.refuseEvent.invoke()
                                         if (result) {
-                                            (items.value as? ArrayList)?.remove(item)
-                                            items.value = items.value
+                                            list.remove(item)
                                         }
                                     }
                                 },
@@ -456,16 +456,13 @@ private fun LiveMultiVoiceApplyListEmpty() {
 // @Preview(name = "InviteList")
 @Composable
 // private fun LiveMultiVoiceInviteList(@PreviewParameter(LiveMultiVoiceProvider::class) data: LiveMultiVoiceManagerUIState) {
-private fun LiveMultiVoiceInviteList(list: List<LiveMultiVoiceInviteItem>?) {
+private fun LiveMultiVoiceInviteList(items: SnapshotStateList<LiveMultiVoiceInviteItem>?) {
+    val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val items = remember {
-            mutableStateOf(list)
-        }
-
-        if (items.value?.isNotEmpty() == true) {
+        if (items?.isNotEmpty() == true) {
             Text(
                 modifier = Modifier
                     .padding(start = 15.dp),
@@ -478,8 +475,7 @@ private fun LiveMultiVoiceInviteList(list: List<LiveMultiVoiceInviteItem>?) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                val tempValue = items.value ?: return@LazyColumn
-                itemsIndexed(items = tempValue,
+                itemsIndexed(items = items,
                     // key = { _, item ->
                     //     item.hashCode()
                     // }
@@ -536,10 +532,13 @@ private fun LiveMultiVoiceInviteList(list: List<LiveMultiVoiceInviteItem>?) {
                         )
 
                         // 邀请按钮
+                        val isInvited = remember {
+                            mutableStateOf(item.inviteState == LiveMultiVoiceInviteItem.STATE_INVITED)
+                        }
                         val textInvite =
-                            if (item.inviteState == LiveMultiVoiceInviteItem.STATE_NONE) "邀请连麦" else "已邀请"
+                            if (!isInvited.value) "邀请连麦" else "已邀请"
                         val colorInvite =
-                            if (item.inviteState == LiveMultiVoiceInviteItem.STATE_NONE) Color(
+                            if (!isInvited.value) Color(
                                 0xFFFF6699
                             ) else Color(0x66FF6699)
                         Box(modifier = Modifier
@@ -561,8 +560,20 @@ private fun LiveMultiVoiceInviteList(list: List<LiveMultiVoiceInviteItem>?) {
                                 shape = RoundedCornerShape(4.dp)
                             )
                             .clickable {
-                                Log.d("ManagerView", "Simon.Debug click invite")
-                                item.inviteEvent.invoke()
+                                scope.launch {
+                                    Log.d("ManagerView", "Simon.Debug click invite")
+                                    val result = item.inviteEvent.invoke()
+                                    if (result) {
+                                        isInvited.value = true
+                                        // 改变数据源
+                                        items.forEach {
+                                            if (it.uid == item.uid) {
+                                                it.inviteState = LiveMultiVoiceInviteItem.STATE_INVITED
+                                            }
+                                        }
+                                    }
+                                }
+
                             },
                             contentAlignment = Alignment.Center) {
                             Text(

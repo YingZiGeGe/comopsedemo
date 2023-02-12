@@ -1,6 +1,8 @@
 package com.example.compose.ui.multivoicemanager
 
 import androidx.annotation.DrawableRes
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.example.compose.R
 
@@ -14,8 +16,8 @@ import com.example.compose.R
  */
 data class LiveMultiVoiceManagerUIState(
     val titles: MutableList<String> = mutableListOf("申请消息", "邀请列表"),
-    val applyList: List<LiveMultiVoiceApplyItem>? = null,
-    val inviteList: List<LiveMultiVoiceInviteItem>? = null,
+    val applyList: SnapshotStateList<LiveMultiVoiceApplyItem>? = null,
+    val inviteList: SnapshotStateList<LiveMultiVoiceInviteItem>? = null,
     var currentPage: Int = PAGE_APPLY_LIST,
     val firstLoad: (Int) -> Unit = {}
 ) {
@@ -46,7 +48,7 @@ data class LiveMultiVoiceInviteItem(
     var interactionValue: Int? = null,
     // 0 未邀请, 1 已邀请
     var inviteState: Int = STATE_NONE,
-    var inviteEvent: () -> Unit = {}
+    var inviteEvent: suspend () -> Boolean = { false }
 ) {
     companion object {
         const val STATE_NONE = 0
@@ -55,7 +57,7 @@ data class LiveMultiVoiceInviteItem(
 }
 
 class LiveMultiVoiceProvider : PreviewParameterProvider<LiveMultiVoiceManagerUIState> {
-    private val applyList = ArrayList<LiveMultiVoiceApplyItem>().apply {
+    private val applyList = mutableStateListOf<LiveMultiVoiceApplyItem>().apply {
         repeat(100) {
             add(LiveMultiVoiceApplyItem().apply {
                 uid = it.toLong()
@@ -65,7 +67,7 @@ class LiveMultiVoiceProvider : PreviewParameterProvider<LiveMultiVoiceManagerUIS
             })
         }
     }
-    private val inviteList = ArrayList<LiveMultiVoiceInviteItem>().apply {
+    private val inviteList = mutableStateListOf<LiveMultiVoiceInviteItem>().apply {
         repeat(100) {
             add(LiveMultiVoiceInviteItem().apply {
                 uid = it.toLong()

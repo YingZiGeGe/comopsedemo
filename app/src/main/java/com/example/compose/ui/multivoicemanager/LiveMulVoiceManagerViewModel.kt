@@ -1,6 +1,7 @@
 package com.example.compose.ui.multivoicemanager
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +21,7 @@ import kotlin.random.Random
  */
 class LiveMulVoiceManagerViewModel: ViewModel() {
     var managerUIState = MutableLiveData(LiveMultiVoiceManagerUIState(
-        applyList = ArrayList<LiveMultiVoiceApplyItem>().apply {
+        applyList = mutableStateListOf<LiveMultiVoiceApplyItem>().apply {
             repeat(50) {
                 add(LiveMultiVoiceApplyItem().apply {
                     uid = it.toLong()
@@ -36,7 +37,7 @@ class LiveMulVoiceManagerViewModel: ViewModel() {
                 })
             }
         },
-        inviteList = ArrayList<LiveMultiVoiceInviteItem>().apply {
+        inviteList = mutableStateListOf<LiveMultiVoiceInviteItem>().apply {
             repeat(50) {
                 add(LiveMultiVoiceInviteItem().apply {
                     uid = it.toLong()
@@ -97,18 +98,20 @@ class LiveMulVoiceManagerViewModel: ViewModel() {
         return true
     }
 
-    private fun invite(item: LiveMultiVoiceInviteItem) {
+    private suspend fun invite(item: LiveMultiVoiceInviteItem): Boolean {
         Log.d("ManagerVM", "Simon.Debug invite 000 = ${item.name}")
-        viewModelScope.launch {
-            managerUIState.value = managerUIState.value.apply {
-                this?.inviteList?.forEach {
-                    if (it.uid == item.uid) {
-                        Log.d("ManagerVM", "Simon.Debug invite 001 = ${item.name}")
-                        item.inviteState = LiveMultiVoiceInviteItem.STATE_INVITED
-                    }
-                }
-            }
-        }
+        delay(200)
+        return true
+        // viewModelScope.launch {
+        //     managerUIState.value = managerUIState.value.apply {
+        //         this?.inviteList?.forEach {
+        //             if (it.uid == item.uid) {
+        //                 Log.d("ManagerVM", "Simon.Debug invite 001 = ${item.name}")
+        //                 item.inviteState = LiveMultiVoiceInviteItem.STATE_INVITED
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     companion object {
