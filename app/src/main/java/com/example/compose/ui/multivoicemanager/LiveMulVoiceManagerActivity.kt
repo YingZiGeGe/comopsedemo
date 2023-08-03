@@ -55,12 +55,6 @@ class LiveMulVoiceManagerActivity: BaseActivity() {
         viewModel = ViewModelProvider(this)[LiveMulVoiceManagerViewModel::class.java]
     }
 
-    // private val list: MutableList<Int> by mutableStateOf(mutableListOf<Int>().apply {
-    //     repeat(100) {
-    //         add(it)
-    //     }
-    // })
-
     @Composable
     private fun ManagerMainView() {
         val scope = rememberCoroutineScope()
@@ -80,45 +74,6 @@ class LiveMulVoiceManagerActivity: BaseActivity() {
                             }
                         },
                     text = "弹起管理员面板")
-
-                // val text = MutableStateFlow("Hello World")
-                // val text = MutableLiveData("Hello World")
-
-                // todo ManagerView 正在查找为什么数据变更后不刷新, 上下滑动后才刷新...
-                // 原因: https://www.likecs.com/show-308643424.html#sc=3748
-                val list = remember {
-                    mutableStateListOf<Int>()
-                        .apply {
-                            repeat(100) {
-                                add(it)
-                            }
-                        }
-                }
-                // val list2 = list.().value!!
-                LazyColumn {
-                    items(
-                        items = list
-                    ) { item ->
-                        Text(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .height(60.dp)
-                                .clickable {
-                                    Log.d(
-                                        "TestView",
-                                        "TestView click list size 000 = ${list.size}"
-                                    )
-                                    list.remove(item)
-                                    Log.d(
-                                        "TestView",
-                                        "TestView click list size 001 = ${list.size}"
-                                    )
-                                },
-                            text = "Hello World $item",
-                            color = Color.Black
-                        )
-                    }
-                }
             }
         }
 

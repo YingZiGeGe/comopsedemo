@@ -188,6 +188,9 @@ fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::class) d
                 .fillMaxSize()
         ) { page ->
             // page = 0: 申请列表, page = 1: 邀请列表
+            // 踩坑记录: page 不能使用 pageState.currentPage, 要使用 page,
+            // 因为 pageState.currentPage 并不能计时更新, 猜测应该是 翻页 idle 后, 在做更新
+            // 但 page 是实时更新的
             when (page) {
                 0 -> {
                     // todo Simon.Debug 正在网络请求时, 关播页面时, 需要取消请求?
@@ -205,6 +208,23 @@ fun LiveMultiVoiceManagerView(@PreviewParameter(LiveMultiVoiceProvider::class) d
                 scope.launch {
                     pageState.scrollToPage(data.currentPage)
                     data.firstLoad.invoke(data.currentPage)
+                }
+            }
+
+            // compose viewPager 滑动 selected 监听,
+            // todo Simon.Debug 为什么 collect 了两次?
+            // LaunchedEffect(pageState) {
+            //     snapshotFlow { pageState.currentPage }.collect { page ->
+            //         Log.d("Simon.Debug", "compose viewPager page = $page")
+            //     }
+            // }
+
+            LaunchedEffect(pageState) {
+                snapshotFlow {
+                    pageState.currentPage
+                }.collect { page ->
+                    // Now you can use selected page
+                    Log.d("Simon.Debug", "compose viewPager page page = $page")
                 }
             }
         }
@@ -568,7 +588,8 @@ private fun LiveMultiVoiceInviteList(items: SnapshotStateList<LiveMultiVoiceInvi
                                         // 改变数据源
                                         items.forEach {
                                             if (it.uid == item.uid) {
-                                                it.inviteState = LiveMultiVoiceInviteItem.STATE_INVITED
+                                                it.inviteState =
+                                                    LiveMultiVoiceInviteItem.STATE_INVITED
                                             }
                                         }
                                     }

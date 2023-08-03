@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Compose"
         tools:targetApi="31">
         <activity
+            android:name=".ui.videodetail.BiliVideoDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
@@ -28,10 +31,10 @@
                 android:value="" />
         </activity>
         <activity
-            android:name="com.example.compose.XmlActivity"
+            android:name=".XmlActivity"
             android:exported="false" />
         <activity
-            android:name="com.example.compose.ui.multivoicemanager.LiveMulVoiceManagerActivity"
+            android:name=".ui.multivoicemanager.LiveMulVoiceManagerActivity"
             android:exported="false" />
     </application>
 

@@ -21,6 +21,8 @@ import kotlin.random.Random
  */
 class LiveMulVoiceManagerViewModel: ViewModel() {
     var managerUIState = MutableLiveData(LiveMultiVoiceManagerUIState(
+        // ManagerView 正在查找为什么数据变更后不刷新, 上下滑动后才刷新...
+        // 原因: https://www.likecs.com/show-308643424.html#sc=3748
         applyList = mutableStateListOf<LiveMultiVoiceApplyItem>().apply {
             repeat(50) {
                 add(LiveMultiVoiceApplyItem().apply {
