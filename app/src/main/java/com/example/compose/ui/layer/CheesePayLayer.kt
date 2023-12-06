@@ -6,14 +6,19 @@ import android.text.style.ForegroundColorSpan
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -32,7 +37,7 @@ import com.example.compose.R
  * @desc   :
  *
  */
-@Preview(name = "CheesePayLayerCompose")
+// @Preview(name = "CheesePayLayerCompose")
 @Composable
 fun CheesePayLayerView(playerMask: PlayerMask) {
     ConstraintLayout(
@@ -40,8 +45,7 @@ fun CheesePayLayerView(playerMask: PlayerMask) {
             .fillMaxSize()
             .background(color = Color.Black)
     ) {
-        val (back, title, content, button) = createRefs()
-        // 目前发现约束布局中使用链会导致 margin 失效, 参考 [https://github.com/androidx/constraintlayout/issues/572],
+        val (back, title, content, button) = createRefs() // 目前发现约束布局中使用链会导致 margin 失效, 参考 [https://github.com/androidx/constraintlayout/issues/572],
         // 所以这里又包了一层...
 
         // 创建约束链
@@ -90,10 +94,14 @@ fun CheesePayLayerView(playerMask: PlayerMask) {
 
             val spanString = SpannableStringBuilder()
             spanString.append(playerMask.prefix).append(playerMask.priceText)
-                .append(playerMask.suffix)
-            // val colorSpan = ForegroundColorSpan(android.graphics.Color.parseColor("0xFFFF6699"))
+                .append(playerMask.suffix) // val colorSpan = ForegroundColorSpan(android.graphics.Color.parseColor("0xFFFF6699"))
             val colorSpan = ForegroundColorSpan(android.graphics.Color.BLUE)
-            spanString.setSpan(colorSpan, playerMask.prefix.length, playerMask.prefix.length + playerMask.priceText.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            spanString.setSpan(
+                colorSpan,
+                playerMask.prefix.length,
+                playerMask.prefix.length + playerMask.priceText.length,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            )
             Text(
                 modifier = Modifier
                     .constrainAs(content) {
@@ -140,7 +148,6 @@ fun CheesePayLayerView(playerMask: PlayerMask) {
                 fontSize = 14.sp,
             )
         }
-
     }
 }
 
@@ -152,3 +159,26 @@ data class PlayerMask(
     val buttonText: String,
     val onClickPay: () -> Unit
 )
+
+@Preview(name = "BlurImage")
+@Composable
+private fun BlurImage() {
+    Box(modifier = Modifier) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_comic_header),
+            contentDescription = null,
+            modifier = Modifier
+                .width(100.dp)
+                .height(100.dp)
+                .blur(16.dp)
+        )
+
+        // 前景色
+        Spacer(
+            modifier = Modifier
+                .width(100.dp)
+                .height(100.dp)
+                .background(color = Color(0x99000000))
+        )
+    }
+}

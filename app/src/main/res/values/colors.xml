@@ -7,4 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="Text4">#FF46494D</color>
+    <color name="live_room_round_status_bg_color">#26FFFFFF</color>
 </resources>

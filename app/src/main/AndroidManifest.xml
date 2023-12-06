@@ -36,6 +36,8 @@
         <activity
             android:name=".ui.multivoicemanager.LiveMulVoiceManagerActivity"
             android:exported="false" />
+        <activity
+            android:name="com.example.compose.LiveFeedActivity"
+            android:exported="false" />
     </application>
-
 </manifest>
