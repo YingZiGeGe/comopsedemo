@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BubbleBackgroundConstraintLayout">
+        <!--圆角-->
+        <attr name="corner_radius" format="dimension" />
+        <!--渲染颜色-->
+        <attr name="render_color" format="color" />
+        <!--三角中心点的水平位置：正数以左侧为原点，负数以右侧为原点-->
+        <attr name="triangle_horizon_center_position" format="dimension" />
+        <!--三角锚点的垂直位置-->
+        <attr name="triangle_vertical_location" format="enum">
+            <enum name="up" value="0" />
+            <enum name="down" value="1" />
+        </attr>
+        <!--渲染模式：stroke-描边，fill-填充-->
+        <attr name="render_mode" format="enum">
+            <enum name="stroke" value="0" />
+            <enum name="fill" value="1" />
+        </attr>
+        <!--描边宽度-->
+        <attr name="stroke_width" format="dimension" />
+        <!--三角的宽-->
+        <attr name="triangle_width" format="dimension" />
+        <!--三角的高-->
+        <attr name="triangle_height" format="dimension" />
+    </declare-styleable>
+</resources>

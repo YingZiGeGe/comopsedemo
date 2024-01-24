@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,12 +30,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.compose.R
-import kotlin.random.Random
 
 /**
  *
@@ -220,7 +217,7 @@ private fun CheesePackageItem(index: Int) {
                 end.linkTo(image.end)
             }
             .wrapContentSize(),
-            text = if (index == 5) "2022高考数学新一轮总复习极客时间" else "2022高考数学",
+            text = if (index == 4) "2022高考数学新一轮总复习极客时间" else "2022高考数学",
             fontSize = 12.sp,
             color = Color(0xFF18191C),
             maxLines = 2,
@@ -308,7 +305,7 @@ private fun CheesePackageLayerItem() {
             .wrapContentHeight()
             .background(color = Color.White)
     ) {
-        val (image, label, title, desc, priceRow, line, test) = createRefs()
+        val (image, label, title, desc, priceRow, line) = createRefs()
 
         Image(modifier = Modifier
             .constrainAs(image) {
