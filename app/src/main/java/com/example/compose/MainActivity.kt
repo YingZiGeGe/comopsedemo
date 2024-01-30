@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.compose.pushstream.PushStreamActivity
 import com.example.compose.ui.multivoicemanager.LiveMulVoiceManagerActivity
 import com.example.compose.ui.theme.ComposeTheme
 import com.example.compose.ui.videodetail.BiliVideoDetailActivity
@@ -39,7 +41,8 @@ class MainActivity : BaseActivity() {
         LiveMulVoiceManagerActivity::class.java,
         BiliVideoDetailActivity::class.java,
         XmlActivity::class.java,
-        LiveFeedActivity::class.java
+        LiveFeedActivity::class.java,
+        PushStreamActivity::class.java
     )
 
 
@@ -72,12 +75,13 @@ class MainActivity : BaseActivity() {
                 ) {
                     Text(
                         modifier = Modifier
+                            .padding(start = 50.dp, end = 50.dp)
                             .fillMaxWidth()
                             .wrapContentHeight(),
                         text = "$index ${item.simpleName}",
                         color = Color.Black,
                         fontSize = 18.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Start
                     )
                 }
             }
